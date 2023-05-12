@@ -22,7 +22,7 @@ def fft(f,inv):
         if n%p==0:
             break
     else:
-        raise Exception('%s not factorable ' % n)
+        raise Exception(f'{n} not factorable ')
 
     m = n/p
     Fout=[]
@@ -37,10 +37,7 @@ def fft(f,inv):
             k = q1*m + u  # indices to Fout above that became scratch
             Fout[ k ] = scratch[0] # cuz e**0==1 in loop below
             for q in range(1,p):
-                if inv:
-                    t = e ** ( j*2*pi*k*q/n )
-                else:                    
-                    t = e ** ( -j*2*pi*k*q/n )
+                t = e ** ( j*2*pi*k*q/n ) if inv else e ** ( -j*2*pi*k*q/n )
                 Fout[ k ] += scratch[q] * t
 
     return Fout
@@ -57,8 +54,7 @@ def rifft(F):
 
     f = []
     for c in fp:
-        f.append(c.real)
-        f.append(c.imag)
+        f.extend((c.real, c.imag))
     return f
 
 def real_fft( f,inv ):
@@ -146,7 +142,7 @@ def flatten(x):
 
 def randmat( ndims ):
     dims=[]
-    for i in range( ndims ):
+    for _ in range( ndims ):
         curdim = int( random.uniform(2,4) )
         dims.append( curdim )
     return make_random(dims )

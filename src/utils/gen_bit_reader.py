@@ -10,7 +10,7 @@ for block_size in range(1, nbits + 1):
 def gen_unpack_bytes(nbytes):
     code = []
     for i in range(nbytes):
-        code.append('const unsigned char s{} = *src++;'.format(i))
+        code.append(f'const unsigned char s{i} = *src++;')
     for i in range(nbytes * 8 // nbits):
         shift = i * nbits
         mask = ((1 << nbits) - 1) << shift
@@ -28,7 +28,7 @@ def gen_unpack_bytes(nbytes):
                 parts.append('((s{} & 0x{:02x}) >> {})'.format(j, part_mask >> part_shift, shift - part_shift))
             else:
                 parts.append('((s{} & 0x{:02x}) << {})'.format(j, part_mask >> part_shift, part_shift - shift))
-        code.append('*dest++ = {};'.format(' | '.join(parts)))
+        code.append(f"*dest++ = {' | '.join(parts)};")
     return i + 1, code
 
 print '// Copyright (C) 2016  Lukas Lalinsky'

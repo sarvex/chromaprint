@@ -20,7 +20,7 @@ j=complex(0,1)
 lims=(-32768,32767)
 
 def randbuf(n,cpx=1):
-    res = array( [ random.uniform( lims[0],lims[1] ) for i in range(n) ] )
+    res = array([random.uniform( lims[0],lims[1] ) for _ in range(n)])
     if cpx:
         res = res + j*randbuf(n,0)
     return res
@@ -79,19 +79,16 @@ def main():
 
 def dopack(x,fmt,cpx):
     x = reshape( x, ( size(x),) )
-    if cpx:
-        s = ''.join( [ struct.pack('ff',c.real,c.imag) for c in x ] )
-    else:
-        s = ''.join( [ struct.pack('f',c) for c in x ] )
-    return s 
+    return (
+        ''.join([struct.pack('ff', c.real, c.imag) for c in x])
+        if cpx
+        else ''.join([struct.pack('f', c) for c in x])
+    ) 
 
 def dounpack(x,fmt,cpx):
     uf = fmt * ( len(x) / 4 )
     s = struct.unpack(uf,x)
-    if cpx:
-        return array(s[::2]) + array( s[1::2] )*j
-    else:    
-        return array(s )
+    return array(s[::2]) + array( s[1::2] )*j if cpx else array(s )
 
 if __name__ == "__main__":
     main()

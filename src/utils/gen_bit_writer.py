@@ -11,7 +11,7 @@ def gen_pack_bytes(num_values):
     code = []
     nbytes = (num_values * nbits + 7) // 8
     for i in range(num_values):
-        code.append('const unsigned char s{} = *src++;'.format(i))
+        code.append(f'const unsigned char s{i} = *src++;')
     for i in range(nbytes):
         byte_shift = i * 8
         byte_mask = 0xff << byte_shift
@@ -28,7 +28,7 @@ def gen_pack_bytes(num_values):
                 values.append('((s{} & 0x{:02x}) << {})'.format(j, mask >> value_shift, value_shift - byte_shift))
             else:
                 values.append('((s{} & 0x{:02x}) >> {})'.format(j, mask >> value_shift, byte_shift - value_shift))
-        code.append('*dest++ = (unsigned char) {};'.format(' | '.join(values)))
+        code.append(f"*dest++ = (unsigned char) {' | '.join(values)};")
     return i + 1, code
 
 print '// Copyright (C) 2016  Lukas Lalinsky'

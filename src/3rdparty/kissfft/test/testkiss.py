@@ -20,7 +20,7 @@ doreal=0
 
 datatype = os.environ.get('DATATYPE','float')
 
-util = '../tools/fft_' + datatype
+util = f'../tools/fft_{datatype}'
 minsnr=90
 if datatype == 'double':
     fmt='d'
@@ -42,12 +42,12 @@ else:
 
 def dopack(x,cpx=1):
     x = numpy.reshape( x, ( numpy.size(x),) )
-    
-    if cpx:
-        s = ''.join( [ struct.pack(fmt*2,c.real,c.imag) for c in x ] )
-    else:
-        s = ''.join( [ struct.pack(fmt,c.real) for c in x ] )
-    return s
+
+    return (
+        ''.join([struct.pack(fmt * 2, c.real, c.imag) for c in x])
+        if cpx
+        else ''.join([struct.pack(fmt, c.real) for c in x])
+    )
 
 def dounpack(x,cpx):
     uf = fmt * ( len(x) // struct.calcsize(fmt) )
@@ -80,18 +80,14 @@ def randmat( ndims ):
     for i in range( ndims ):
         curdim = int( random.uniform(2,5) )
         if doreal and i==(ndims-1):
-            curdim = int(curdim/2)*2 # force even last dimension if real
+            curdim = curdim // 2 * 2
         dims.append( curdim )
     return make_random(dims )
 
 def test_fft(ndims):
     x=randmat( ndims )
 
-    if doreal:
-        xver = numpy.fft.rfftn(x)
-    else:
-        xver = numpy.fft.fftn(x)
-    
+    xver = numpy.fft.rfftn(x) if doreal else numpy.fft.fftn(x)
     x2=dofft(x,doreal)
     err = xver - x2
     errf = flatten(err)
@@ -119,7 +115,7 @@ def dofft(x,isreal):
         x = 2147483647.0 * x
         scale = len(x) / 2147483647.0
 
-    cmd='%s -n ' % util
+    cmd = f'{util} -n '
     cmd += ','.join([str(d) for d in dims])
     if doreal:
         cmd += ' -R '
@@ -146,9 +142,7 @@ def main():
     opts=dict(opts)
 
     global doreal
-    doreal = opts.has_key('-r')
-
-    if doreal:
+    if doreal := opts.has_key('-r'):
         print( 'Testing multi-dimensional real FFTs')
     else:
         print( 'Testing multi-dimensional FFTs')
